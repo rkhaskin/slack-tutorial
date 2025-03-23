@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { useCurrentUser } from "@/features/auth/hooks/use-current-user";
+import { useCurrentUser } from "@/features/auth/api/use-current-user";
 import { Loader, LogOut } from "lucide-react";
 
 export const UserButton = () => {
@@ -24,7 +24,7 @@ export const UserButton = () => {
     return null;
   }
 
-  const { email, name, image } = data;
+  const { name, image } = data;
 
   const avatarFallback = name!.charAt(0).toUpperCase();
 
