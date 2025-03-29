@@ -8,6 +8,7 @@ interface useGetWorkspaceProps {
 
 // this call is cached. Two calls from different pages will get the same result. First call call db, second gets result from cache
 export const useGetWorspace = ({ id }: useGetWorkspaceProps) => {
+  console.trace();
   const data = useQuery(api.workspaces.getById, { id });
   const isLoading = data === undefined;
 

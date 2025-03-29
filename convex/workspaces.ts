@@ -7,9 +7,41 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 export const get = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("workspaces").collect();
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      // in queries do not thow erorrs, just return empty
+      return [];
+    }
+
+    // find all workspaces the use is a member of
+    const members = await ctx.db
+      .query("members")
+      .withIndex("by_user_id", (q) => q.eq("userId", userId))
+      .collect();
+
+    const workspaceIds = members.map((member) => member.workspaceId);
+
+    const workspaces = [];
+
+    for (const wid of workspaceIds) {
+      const workspace = await ctx.db.get(wid);
+      if (workspace) {
+        workspaces.push(workspace);
+      }
+    }
+
+    return workspaces;
   },
 });
+
+const generateCode = () => {
+  const code = Array.from(
+    { length: 6 },
+    () => "0123456789abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 36)]
+  ).join("");
+  return code;
+};
 
 // this is like a DAO. Will be called from another class
 export const create = mutation({
@@ -24,14 +56,19 @@ export const create = mutation({
       throw new Error("Unauthorized");
     }
 
-    const joinCode = "123456";
+    const joinCode = generateCode();
 
-    const workspaceId = ctx.db.insert("workspaces", {
+    const workspaceId = await ctx.db.insert("workspaces", {
       name: args.name,
       userId,
       joinCode,
     });
 
+    await ctx.db.insert("members", {
+      userId,
+      workspaceId,
+      role: "admin",
+    });
     return workspaceId;
   },
 });
@@ -39,11 +76,22 @@ export const create = mutation({
 export const getById = query({
   args: { id: v.id("workspaces") },
   handler: async (ctx, args) => {
+    console.trace();
     const userId = await getAuthUserId(ctx);
 
     if (!userId) {
       throw new Error("Unauthorized");
     }
+
+    // also check for members
+    const member = ctx.db
+      .query("members")
+      .withIndex("by_workspace_id_user_id", (q) =>
+        q.eq("workspaceId", args.id).eq("userId", userId)
+      )
+      .unique();
+
+    if (!member) return null;
 
     return ctx.db.get(args.id);
   },

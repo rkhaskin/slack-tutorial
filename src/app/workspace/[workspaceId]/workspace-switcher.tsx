@@ -6,8 +6,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
+  //   DropdownMenuLabel,
+  //   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -20,10 +20,13 @@ import { useRouter } from "next/navigation";
 
 function WorkspaceSwicther() {
   const workspaceId = useWorkspaceId();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: workspaces, isLoading: workspacesLoading } = useGetWorspaces();
   const { data: workspace, isLoading: workspaceLoading } = useGetWorspace({
     id: workspaceId,
   });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [open, setOpen] = useCreateWorkspaceModal();
   const router = useRouter();
 
@@ -33,7 +36,8 @@ function WorkspaceSwicther() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      {/* as child is needed to tell that inner button as top level element, with all props from parent */}
+      <DropdownMenuTrigger asChild>
         <Button className="size-9 relative overflow-hidden bg-[#ababad] hover:bg-[#ababad]/80 text-slate-800 font-semibold text-xl">
           {workspaceLoading ? (
             <Loader className="size-5 animate-spin shrink-0" />
