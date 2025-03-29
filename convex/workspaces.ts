@@ -76,7 +76,6 @@ export const create = mutation({
 export const getById = query({
   args: { id: v.id("workspaces") },
   handler: async (ctx, args) => {
-    console.trace();
     const userId = await getAuthUserId(ctx);
 
     if (!userId) {
