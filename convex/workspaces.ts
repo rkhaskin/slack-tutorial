@@ -69,6 +69,11 @@ export const create = mutation({
       workspaceId,
       role: "admin",
     });
+
+    await ctx.db.insert("channels", {
+      name: "general",
+      workspaceId,
+    });
     return workspaceId;
   },
 });
@@ -134,7 +139,6 @@ export const remove = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
 
-    console.log("bbbbbbbbbbb", args);
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -145,7 +149,6 @@ export const remove = mutation({
         q.eq("workspaceId", args.id).eq("userId", userId)
       )
       .unique();
-    console.log("dddddddddd", member);
     if (!member || member.role !== "admin") {
       throw new Error("Unauthorized");
     }
